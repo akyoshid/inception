@@ -1,0 +1,67 @@
+# ============================================================================
+# Docker Compose Configuration for Inception Project
+# ============================================================================
+
+# ============================================================================
+# SERVICES
+# ============================================================================
+
+services:
+
+  # ==========================================================================
+  # MariaDB Service
+  # ==========================================================================
+  mariadb:
+    # Container name: The name that can be referenced inside Docker
+    container_name: mariadb
+    
+    # Image build settings
+    build:
+      # Directory containing the Dockerfile
+      context: ./requirements/mariadb
+      # Name of the Dockerfile to use
+      dockerfile: Dockerfile
+    
+    # Image name (name of the image after build)
+    # Project requirement: must be the same name as the service
+    image: mariadb
+    
+    # Setting environment variables (excluding sensitive information)
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+    
+    # Docker Secrets configuration
+    # Use secrets for sensitive information such as passwords
+    # These files are mounted at /run/secrets/<secret_name>
+    secrets:
+      - db_root_password
+      - db_password
+    
+    # Volume mount
+    # Mount the host directory to persist data
+    volumes:
+      # Mount the named volume 'db_data' at /var/lib/mysql
+      # MariaDB's data files are stored here
+      # Data remains even if the container is removed
+      - type: bind
+        source: ${DB_DATA_DIR}
+        target: /var/lib/mysql
+    
+    # Behavior when a container crashes
+    # unless-stopped: always attempt to restart until manually stopped
+    # project requirement:
+    #  "containers must restart automatically in case of a crash"
+    restart: unless-stopped
+
+# ============================================================================
+# SECRETS
+# ============================================================================
+# Definition of Docker Secrets
+# Secrets are mounted inside the container at /run/secrets/<secret_name>
+secrets:
+  db_root_password:
+    file: ../secrets/db_root_password.txt
+  
+  db_password:
+    file: ../secrets/db_password.txt
