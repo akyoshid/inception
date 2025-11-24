@@ -48,11 +48,31 @@ services:
         source: ${DB_DATA_DIR}
         target: /var/lib/mysql
     
+    # Attach this service to the custom user-defined network "inception"
+    # Note:
+    #   Docker Compose automatically creates an isolated network per
+    #   compose project, so services could communicate even without
+    #   explicitly defining one.
+    #   Here we define and name the network explicitly ("inception") to:
+    #     - make the network name stable and predictable
+    #     - emphasize that all project containers must communicate only
+    #       over this isolated network
+    networks:
+      - inception
+    
     # Behavior when a container crashes
     # unless-stopped: always attempt to restart until manually stopped
     # project requirement:
     #  "containers must restart automatically in case of a crash"
     restart: unless-stopped
+
+# ============================================================================
+# NETWORKS
+# ============================================================================
+networks:
+  inception:
+    driver: bridge
+    name: inception
 
 # ============================================================================
 # SECRETS
