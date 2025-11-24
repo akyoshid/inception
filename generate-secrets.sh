@@ -7,6 +7,8 @@
 # Generated files:
 # - secrets/db_root_password.txt     : MariaDB root password
 # - secrets/db_password.txt          : Password for the WordPress DB user
+# - secrets/wp_admin_password.txt    : WordPress admin password
+# - secrets/wp_user_password.txt     : WordPress regular user password
 #
 # Usage:
 #   1. Make this script executable
@@ -26,8 +28,7 @@
 # This script is intended to be run in the inception/ directory
 SECRETS_DIR="secrets"
 
-# Password length (number of characters)
-# 32 characters = sufficiently strong password
+# Password length
 PASSWORD_LENGTH=32
 
 GREEN='\033[0;32m'
@@ -48,7 +49,7 @@ generate_password() {
     # | head -c ${PASSWORD_LENGTH}: take only the first N characters
     #   Base64 works in blocks of 4 characters,
     #    so the result may be slightly longer than the specified length
-    openssl rand -base64 48 | tr -d '\n' | head -c ${PASSWORD_LENGTH}
+    openssl rand -base64 "${bytes}" | tr -d '\n' | head -c "${PASSWORD_LENGTH}"
 }
 
 # ----------------------------------------------------------------------------
@@ -60,7 +61,7 @@ echo -e "${BLUE}Docker Secrets Generator${RESET}"
 echo -e "${BLUE}=========================================${RESET}"
 echo ""
 
-echo -e "${BLUE}[1/4] Creating secrets directory...${RESET}"
+echo -e "${BLUE}[1/5] Creating secrets directory...${RESET}"
 
 # Create only if the directory does not exist
 if [ ! -d "${SECRETS_DIR}" ]; then
@@ -80,7 +81,7 @@ echo ""
 # ----------------------------------------------------------------------------
 # Step 2: Check existing files
 # ----------------------------------------------------------------------------
-echo -e "${BLUE}[2/4] Checking for existing secrets...${RESET}"
+echo -e "${BLUE}[2/5] Checking for existing secrets...${RESET}"
 
 # Check whether an existing secrets file exists
 if ls ${SECRETS_DIR}/*.txt 1> /dev/null 2>&1; then
@@ -98,15 +99,11 @@ else
 fi
 
 # ----------------------------------------------------------------------------
-# Step 3: Generating the Secrets file
+# Step 3: Generate MariaDB Secrets
 # ----------------------------------------------------------------------------
-echo -e "${BLUE}[3/4] Generating secrets...${RESET}"
+echo -e "${BLUE}[3/5] Generating MariaDB secrets...${RESET}"
 
-# --------------------------------------------------------------------------
 # Password for MariaDB root
-# --------------------------------------------------------------------------
-echo -e "${BLUE}Generating: db_root_password.txt${RESET}"
-
 DB_ROOT_PASSWORD=$(generate_password)
 
 # Write to a file
@@ -123,11 +120,7 @@ echo -e "${GREEN}✓ Created: db_root_password.txt${RESET}"
 echo -e "  Password: ${DB_ROOT_PASSWORD}"
 echo ""
 
-# --------------------------------------------------------------------------
 # Password for WordPress user
-# --------------------------------------------------------------------------
-echo -e "${BLUE}Generating: db_password.txt${RESET}"
-
 DB_PASSWORD=$(generate_password)
 echo -n "${DB_PASSWORD}" > "${SECRETS_DIR}/db_password.txt"
 chmod 600 "${SECRETS_DIR}/db_password.txt"
@@ -137,11 +130,32 @@ echo -e "  Password: ${DB_PASSWORD}"
 echo ""
 
 # ----------------------------------------------------------------------------
-# Completion Message
+# Step 4: Generate WordPress Secrets
+# ----------------------------------------------------------------------------
+echo -e "${BLUE}[4/5] Generating WordPress secrets...${RESET}"
+
+# WordPress admin password
+WP_ADMIN_PASSWORD=$(generate_password)
+echo -n "${WP_ADMIN_PASSWORD}" > "${SECRETS_DIR}/wp_admin_password.txt"
+chmod 600 "${SECRETS_DIR}/wp_admin_password.txt"
+echo -e "${GREEN}✓ Created: wp_admin_password.txt${RESET}"
+echo -e "  Password: ${WP_ADMIN_PASSWORD}"
+echo ""
+
+# WordPress regular user password
+WP_USER_PASSWORD=$(generate_password)
+echo -n "${WP_USER_PASSWORD}" > "${SECRETS_DIR}/wp_user_password.txt"
+chmod 600 "${SECRETS_DIR}/wp_user_password.txt"
+echo -e "${GREEN}✓ Created: wp_user_password.txt${RESET}"
+echo -e "  Password: ${WP_USER_PASSWORD}"
+echo ""
+
+# ----------------------------------------------------------------------------
+# Step 5: Completion
 # ----------------------------------------------------------------------------
 echo ""
 echo -e "${GREEN}=========================================${RESET}"
-echo -e "${GREEN}Secrets generated successfully!${RESET}"
+echo -e "${GREEN}All secrets generated successfully!${RESET}"
 echo -e "${GREEN}=========================================${RESET}"
 echo ""
 
@@ -150,11 +164,14 @@ echo ""
 # ----------------------------------------------------------------------------
 echo -e "${YELLOW}IMPORTANT:${RESET}"
 echo ""
-echo -e "${RED}1. Save the passwords above in a secure location!${RESET}"
-echo -e "   You will need them for database access."
+echo -e "${RED}1. Save these passwords in a secure location!${RESET}"
+echo -e "   - DB Root: ${DB_ROOT_PASSWORD}"
+echo -e "   - DB User: ${DB_PASSWORD}"
+echo -e "   - WP Admin: ${WP_ADMIN_PASSWORD}"
+echo -e "   - WP User: ${WP_USER_PASSWORD}"
 echo ""
 echo -e "${YELLOW}2. These files are ignored by Git (.gitignore)${RESET}"
-echo -e "   Make sure secrets/*.txt is in your .gitignore"
+echo -e "   Make sure secrets/ is in your .gitignore"
 echo ""
 echo -e "${YELLOW}3. File permissions are set to 600 (owner read/write only)${RESET}"
 echo -e "   Do not change these permissions"
@@ -173,12 +190,12 @@ if [ -f ".gitignore" ]; then
     else
         echo -e "${RED}⚠ WARNING: secrets/ not found in .gitignore!${RESET}"
         echo -e "${YELLOW}  Add this line to .gitignore:${RESET}"
-        echo -e "  ${BLUE}**/secrets/${RESET}"
+        echo -e "  ${BLUE}secrets/${RESET}"
     fi
 else
     echo -e "${RED}⚠ WARNING: .gitignore not found!${RESET}"
     echo -e "${YELLOW}  Create .gitignore and add:${RESET}"
-    echo -e "  ${BLUE}**/secrets/${RESET}"
+    echo -e "  ${BLUE}secrets/${RESET}"
 fi
 
 echo ""
