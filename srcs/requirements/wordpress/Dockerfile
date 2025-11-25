@@ -29,7 +29,7 @@ RUN chmod +x /usr/local/bin/init-wp.sh && \
 
 # Create this directory if it does not exist
 # Subsequent RUN, CMD, ENTRYPOINT, etc. will be executed in this directory
-WORKDIR /var/www/wordpress
+WORKDIR /var/www/html
 
 EXPOSE 9000
 

@@ -69,16 +69,18 @@ else
         --user_pass="${WP_USER_PASSWORD}" \
         --allow-root
     
-    # Set proper permissions
-    # - To allow WordPress to create and edit files
-    # - To install plugins
-    # - To upload media
-    # - To create cache files
-    chown -R www-data:www-data /var/www/wordpress
-    
     echo "WordPress installation complete!"
 fi
 
+# Set proper permissions (run every time, not just on install)
+# This ensures permissions are correct even after volume mount
+# - To allow WordPress to create and edit files
+# - To install plugins
+# - To upload media
+# - To create cache files
+chown -R www-data:www-data /var/www/html
+chmod -R 755 /var/www/html
+    
 # Clear sensitive variables
 unset MYSQL_PASSWORD WP_ADMIN_PASSWORD WP_USER_PASSWORD
 

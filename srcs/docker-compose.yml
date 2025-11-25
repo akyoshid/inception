@@ -78,7 +78,7 @@ services:
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
-      MYSQL_HOST: mariadb  # Service name is used as hostname
+      MYSQL_HOST: mariadb
       DOMAIN_NAME: ${DOMAIN_NAME}
       WP_ADMIN_USER: ${WP_ADMIN_USER}
       WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL}
@@ -89,14 +89,54 @@ services:
       - db_password
       - wp_admin_password
       - wp_user_password
+
+    # Mount WordPress files (shared with NGINX container)
     volumes:
       - type: bind
         source: ${WP_DATA_DIR}
-        target: /var/www/wordpress
+        target: /var/www/html
+
+    networks:
+      - inception
+    
+    # Wait for MariaDB to start first
+    depends_on:
+      - mariadb
+
+    restart: unless-stopped
+
+  # ==========================================================================
+  # NGINX Service
+  # ==========================================================================
+  nginx:
+    container_name: nginx
+    build:
+      context: ./requirements/nginx
+      dockerfile: Dockerfile
+      # Pass build-time arguments
+      args:
+        DOMAIN_NAME: ${DOMAIN_NAME}
+    image: nginx
+
+    # Pass runtime environment variables
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
+
+    # Port mapping: host:container
+    # Only port 443 is exposed
+    ports:
+      - "443:443"
+
+    # Mount WordPress files (shared with WordPress container)
+    volumes:
+      - type: bind
+        source: ${WP_DATA_DIR}
+        target: /var/www/html
+
     networks:
       - inception
     depends_on:
-      - mariadb  # Wait for MariaDB to start first
+      - wordpress
     restart: unless-stopped
 
 # ============================================================================
