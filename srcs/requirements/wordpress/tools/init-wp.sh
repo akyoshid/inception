@@ -9,35 +9,92 @@ echo "WordPress Initialization Script"
 echo "========================================="
 
 # ============================================================================
-# STEP 1: Read secrets from Docker Secrets
+# STEP 1: Read secrets and validate environment variables
 # ============================================================================
-echo "[1/5] Loading secrets..."
+echo "[1/5] Loading configuration and secrets..."
 
-if [ -f "/run/secrets/db_password" ]; then
-    export MYSQL_PASSWORD=$(cat /run/secrets/db_password)
-    echo "  ✓ Loaded: db_password"
-else
-    echo "ERROR: db_password secret not found" >&2
+read_secret() {
+    local secret_name="$1"
+    local secret_file="/run/secrets/${secret_name}"
+    
+    if [ -f "${secret_file}" ]; then
+        cat "${secret_file}"
+        echo "  ✓ Loaded secret: ${secret_name}" >&2
+    else
+        echo "ERROR: secret '${secret_name}' is not set" >&2
+        echo ""
+    fi
+}
+
+# Read secrets
+export MYSQL_PASSWORD=$(read_secret "db_password")
+if [ -z "${MYSQL_PASSWORD}" ]; then
+    echo "ERROR: db_password is required" >&2
     exit 1
 fi
 
-if [ -f "/run/secrets/wp_admin_password" ]; then
-    export WP_ADMIN_PASSWORD=$(cat /run/secrets/wp_admin_password)
-    echo "  ✓ Loaded: wp_admin_password"
-else
-    echo "ERROR: wp_admin_password secret not found" >&2
+export WP_ADMIN_PASSWORD=$(read_secret "wp_admin_password")
+if [ -z "${WP_ADMIN_PASSWORD}" ]; then
+    echo "ERROR: wp_admin_password is required" >&2
     exit 1
 fi
 
-if [ -f "/run/secrets/wp_user_password" ]; then
-    export WP_USER_PASSWORD=$(cat /run/secrets/wp_user_password)
-    echo "  ✓ Loaded: wp_user_password"
-else
-    echo "ERROR: wp_user_password secret not found" >&2
+export WP_USER_PASSWORD=$(read_secret "wp_user_password")
+if [ -z "${WP_USER_PASSWORD}" ]; then
+    echo "ERROR: wp_user_password is required" >&2
     exit 1
 fi
 
-echo "[1/5] ✓ All secrets loaded"
+# Validate required environment variables
+if [ -z "${MYSQL_DATABASE:-}" ]; then
+    echo "ERROR: Environment variable MYSQL_DATABASE is required" >&2
+    exit 1
+fi
+
+if [ -z "${MYSQL_USER:-}" ]; then
+    echo "ERROR: Environment variable MYSQL_USER is required" >&2
+    exit 1
+fi
+
+if [ -z "${MYSQL_HOST:-}" ]; then
+    echo "ERROR: Environment variable MYSQL_HOST is required" >&2
+    exit 1
+fi
+
+if [ -z "${DOMAIN_NAME:-}" ]; then
+    echo "ERROR: Environment variable DOMAIN_NAME is required" >&2
+    exit 1
+fi
+
+if [ -z "${WP_ADMIN_USER:-}" ]; then
+    echo "ERROR: Environment variable WP_ADMIN_USER is required" >&2
+    exit 1
+fi
+
+if [ -z "${WP_ADMIN_EMAIL:-}" ]; then
+    echo "ERROR: Environment variable WP_ADMIN_EMAIL is required" >&2
+    exit 1
+fi
+
+if [ -z "${WP_USER:-}" ]; then
+    echo "ERROR: Environment variable WP_USER is required" >&2
+    exit 1
+fi
+
+if [ -z "${WP_USER_EMAIL:-}" ]; then
+    echo "ERROR: Environment variable WP_USER_EMAIL is required" >&2
+    exit 1
+fi
+
+if [ -z "${WP_TITLE:-}" ]; then
+    echo "ERROR: Environment variable WP_TITLE is required" >&2
+    exit 1
+fi
+
+echo "[1/5] ✓ Configuration loaded successfully"
+
+# From this point on, using undefined variables will be treated as an error
+set -u
 
 # ============================================================================
 # STEP 2: Wait for MariaDB to be ready (fallback check)
@@ -49,7 +106,7 @@ echo "[2/5] Verifying MariaDB connection..."
 MAX_RETRIES=30
 RETRY_COUNT=0
 
-until mysqladmin ping -h"mariadb" -u"${MYSQL_USER}" -p"${MYSQL_PASSWORD}" --silent 2>/dev/null; do
+until mysqladmin ping -h"${MYSQL_HOST}" -u"${MYSQL_USER}" -p"${MYSQL_PASSWORD}" --silent 2>/dev/null; do
     RETRY_COUNT=$((RETRY_COUNT + 1))
     if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
         echo "ERROR: MariaDB connection failed after ${MAX_RETRIES} attempts" >&2
@@ -88,7 +145,7 @@ else
         --dbname="${MYSQL_DATABASE}" \
         --dbuser="${MYSQL_USER}" \
         --dbpass="${MYSQL_PASSWORD}" \
-        --dbhost="mariadb" \
+        --dbhost="${MYSQL_HOST}" \
         --allow-root
     echo "  ✓ wp-config.php created"
     
