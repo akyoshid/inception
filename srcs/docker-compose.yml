@@ -64,7 +64,8 @@ services:
     # Allows other services to wait until MariaDB is ready
     healthcheck:
       # mysqladmin ping: Check if the server is responsive
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "--silent"]
+      # Read password from Docker Secrets ($$: escape $ in docker-compose)
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$(cat /run/secrets/db_root_password) --silent"]
       # Wait 10 seconds before first check (allow initialization time)
       start_period: 10s
       # Check every 5 seconds
