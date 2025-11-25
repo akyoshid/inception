@@ -24,7 +24,7 @@ services:
     
     # Image name (name of the image after build)
     # Project requirement: must be the same name as the service
-    image: mariadb
+    image: mariadb:1.0
     
     # Setting environment variables (excluding sensitive information)
     environment:
@@ -89,7 +89,7 @@ services:
     build:
       context: ./requirements/bonus/adminer
       dockerfile: Dockerfile
-    image: adminer
+    image: adminer:1.0
     networks:
       - inception
     depends_on:
@@ -105,7 +105,7 @@ services:
     build:
       context: ./requirements/wordpress
       dockerfile: Dockerfile
-    image: wordpress
+    image: wordpress:1.0
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
@@ -160,7 +160,7 @@ services:
       # Pass build-time arguments
       args:
         DOMAIN_NAME: ${DOMAIN_NAME}
-    image: nginx
+    image: nginx:1.0
 
     # Pass runtime environment variables
     environment:
