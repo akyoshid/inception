@@ -60,6 +60,20 @@ services:
     networks:
       - inception
     
+    # Health check configuration
+    # Allows other services to wait until MariaDB is ready
+    healthcheck:
+      # mysqladmin ping: Check if the server is responsive
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "--silent"]
+      # Wait 10 seconds before first check (allow initialization time)
+      start_period: 10s
+      # Check every 5 seconds
+      interval: 5s
+      # Consider check failed after 5 seconds
+      timeout: 5s
+      # Mark unhealthy after 5 consecutive failures
+      retries: 5
+    
     # Behavior when a container crashes
     # unless-stopped: always attempt to restart until manually stopped
     # project requirement:
@@ -99,9 +113,22 @@ services:
     networks:
       - inception
     
-    # Wait for MariaDB to start first
+    # Wait for MariaDB to be healthy before starting WordPress
+    # This replaces the need for wait loops in init scripts
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
+
+    # Health check for WordPress (PHP-FPM)
+    # NGINX will wait for this before starting
+    healthcheck:
+      # Check if PHP-FPM is running and responding
+      # Using cgi-fcgi to test FastCGI connection
+      test: ["CMD-SHELL", "pgrep php-fpm > /dev/null && test -f /var/www/html/wp-config.php"]
+      start_period: 30s
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
     restart: unless-stopped
 
@@ -135,8 +162,12 @@ services:
 
     networks:
       - inception
+
+    # Wait for WordPress to be healthy before starting NGINX
     depends_on:
-      - wordpress
+      wordpress:
+        condition: service_healthy
+
     restart: unless-stopped
 
 # ============================================================================
