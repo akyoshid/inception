@@ -235,10 +235,11 @@ echo "========================================="
 #    - Saves memory and CPU
 # 
 # --user=mysql: Run as mysql user (not root - security best practice)
-# --skip-daemonize:
-#  Prevent mysqld from forking into the background so it stays in the foreground
-# --console: Log to stdout/stderr (better for Docker logging)
-exec mysqld --user=mysql --skip-daemonize --console
+# --console:
+#  Log to stdout/stderr (better for Docker logging),
+#   & prevent mysqld from forking into the background
+#   so it stays in the foreground.
+exec mysqld --user=mysql --console
 
 # By using exec, this script's process is replaced by mysqld  
 # Therefore, any lines after this will never be executed
