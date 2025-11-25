@@ -76,7 +76,15 @@ echo "[1/7] ✓ Configuration loaded successfully"
 set -u
 
 # ============================================================================
-# STEP 2: Check if this is the first run
+# STEP 2: Create runtime directory (required every time)
+# ============================================================================
+# This directory is needed for the socket file
+# It's in tmpfs, so it disappears when the container stops
+mkdir -p /var/run/mysqld
+chown mysql:mysql /var/run/mysqld
+
+# ============================================================================
+# STEP 3: Check if this is the first run
 # ============================================================================
 # The mysql directory is created during first initialization
 # If it doesn't exist, we need to initialize the database
@@ -85,16 +93,12 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
     echo "[2/7] First run detected - Initializing MariaDB data directory..."
     
     # ------------------------------------------------------------------
-    # Create necessary directories
+    # Create data directory
     # ------------------------------------------------------------------
     
     # Data directory
     # Where MariaDB's data files (tables, indexes, etc.) are stored
     mkdir -p /var/lib/mysql
-    
-    # Runtime directory
-    # PID files and socket files are created
-    mkdir -p /var/run/mysqld
     
     # ------------------------------------------------------------------
     # Set proper owner
@@ -104,7 +108,6 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
     # -R: recursive (all files inside the directory)
     # mysql:mysql: user:group
     chown -R mysql:mysql /var/lib/mysql
-    chown -R mysql:mysql /var/run/mysqld
     
     # ------------------------------------------------------------------
     # Initialize the data directory
