@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akihiro Yoshida - Portfolio</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="header">
+        <div class="container header-inner">
+            <div class="logo">Akihiro Yoshida</div>
+            <nav class="nav">
+                <a href="#about">About</a>
+                <a href="#skills">Skills</a>
+                <a href="#projects">Projects</a>
+                <a href="#contact">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container hero-content">
+            <p class="hero-sub">42 Tokyo Student</p>
+            <h1 class="hero-title">Building Robust<br>Infrastructure Solutions.</h1>
+            <div class="hero-links">
+                <a href="#contact" class="btn">Get in Touch</a>
+                <a href="#projects" class="btn btn-outline">View Projects</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="section">
+        <div class="container">
+            <h2 class="section-title">About Me</h2>
+            <div class="content-width">
+                <p>
+                    I am a student at 42 Tokyo, passionate about system administration, Docker, and building robust infrastructure solutions.
+                    I focus on creating efficient, secure, and scalable environments.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="skills" class="section bg-gray">
+        <div class="container">
+            <h2 class="section-title">Skills</h2>
+            <div class="skills-wrapper">
+                <span class="skill-tag">C / C++</span>
+                <span class="skill-tag">Docker & Docker Compose</span>
+                <span class="skill-tag">Linux System Administration</span>
+                <span class="skill-tag">Shell Scripting</span>
+                <span class="skill-tag">Git</span>
+            </div>
+        </div>
+    </section>
+
+    <section id="projects" class="section">
+        <div class="container">
+            <h2 class="section-title">Projects</h2>
+            <div class="projects-grid">
+                <article class="project-card">
+                    <div class="project-header">
+                        <h3>Inception</h3>
+                        <span class="project-label">System Administration</span>
+                    </div>
+                    <p class="project-desc">
+                        A Docker-based infrastructure project featuring NGINX, WordPress, and MariaDB with TLS encryption and proper container orchestration.
+                    </p>
+                    <div class="project-tech">
+                        <span>Docker</span>
+                        <span>NGINX</span>
+                        <span>MariaDB</span>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="section bg-dark">
+        <div class="container contact-container">
+            <h2 class="section-title text-white">Contact</h2>
+            <div class="contact-links">
+                <a href="mailto:akyoshid@student.42tokyo.jp" class="contact-item">
+                    <span class="label">Email</span>
+                    <span class="value">akyoshid@student.42tokyo.jp</span>
+                </a>
+                <a href="https://github.com/akyoshid" target="_blank" class="contact-item">
+                    <span class="label">GitHub</span>
+                    <span class="value">github.com/akyoshid</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Akihiro Yoshida. Made for Inception project at 42 Tokyo.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

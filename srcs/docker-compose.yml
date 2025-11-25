@@ -82,6 +82,19 @@ services:
     restart: unless-stopped
 
   # ==========================================================================
+  # Static Site Service (Bonus)
+  # ==========================================================================
+  static-site:
+    container_name: static-site
+    build:
+      context: ./requirements/bonus/static-site
+      dockerfile: Dockerfile
+    image: static-site:1.0
+    networks:
+      - inception
+    restart: unless-stopped
+
+  # ==========================================================================
   # Adminer Service (Bonus)
   # ==========================================================================
   adminer:
