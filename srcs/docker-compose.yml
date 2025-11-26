@@ -248,6 +248,24 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+# ==========================================================================
+  # Service Monitor (Bonus - Custom Service)
+  # ==========================================================================
+  monitor:
+    container_name: monitor
+    build:
+      context: ./requirements/bonus/monitor
+      dockerfile: Dockerfile
+    image: monitor:1.0
+    networks:
+      - inception
+    depends_on:
+      - mariadb
+      - redis
+      - wordpress
+      - nginx
+    restart: unless-stopped
+
 # ============================================================================
 # NETWORKS
 # ============================================================================

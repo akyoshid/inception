@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="30">
+    <title>Inception Service Monitor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #eee;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            color: #e94560;
+            margin-bottom: 10px;
+        }
+        
+        .timestamp {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        .services {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .service {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        
+        .service:hover {
+            transform: translateY(-5px);
+        }
+        
+        .service-name {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .status.up {
+            background: #00b894;
+            color: #fff;
+        }
+        
+        .status.down {
+            background: #e94560;
+            color: #fff;
+        }
+        
+        .indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        
+        .indicator.up {
+            background: #00b894;
+            box-shadow: 0 0 10px #00b894;
+        }
+        
+        .indicator.down {
+            background: #e94560;
+            box-shadow: 0 0 10px #e94560;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #666;
+            font-size: 0.8rem;
+        }
+        
+        .refresh-note {
+            margin-top: 20px;
+            text-align: center;
+            color: #888;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🖥️ Inception Service Monitor</h1>
+            <p class="timestamp">Last updated: {{ timestamp }}</p>
+        </header>
+        
+        <div class="services">
+            {% for name, is_up in services.items() %}
+            <div class="service">
+                <div class="service-name">
+                    <span class="indicator {{ 'up' if is_up else 'down' }}"></span>
+                    {{ name }}
+                </div>
+                <span class="status {{ 'up' if is_up else 'down' }}">
+                    {{ 'ONLINE' if is_up else 'OFFLINE' }}
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <p class="refresh-note">Auto-refresh every 30 seconds</p>
+        
+        <footer>
+            <p>Inception Project - 42 Tokyo</p>
+        </footer>
+    </div>
+</body>
+</html>
