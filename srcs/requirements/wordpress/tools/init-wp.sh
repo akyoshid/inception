@@ -97,11 +97,11 @@ echo "[1/5] ✓ Configuration loaded successfully"
 set -u
 
 # ============================================================================
-# STEP 2: Wait for MariaDB to be ready (fallback check)
+# STEP 2: Wait for MariaDB and Redis to be ready (fallback check)
 # ============================================================================
 # Note: docker-compose healthcheck handles this via depends_on condition,
 #       but we keep a fallback check for safety and manual container runs
-echo "[2/5] Verifying MariaDB connection..."
+echo "[2/5] Verifying MariaDB & Redis connection..."
 
 MAX_RETRIES=30
 RETRY_COUNT=0
@@ -117,6 +117,20 @@ until mysqladmin ping -h"${MYSQL_HOST}" -u"${MYSQL_USER}" -p"${MYSQL_PASSWORD}" 
 done
 
 echo "[2/5] ✓ MariaDB is ready"
+
+RETRY_COUNT=0
+
+until redis-cli -h redis ping 2>/dev/null | grep -q "PONG"; do
+    RETRY_COUNT=$((RETRY_COUNT + 1))
+    if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
+        echo "ERROR: Redis connection failed after ${MAX_RETRIES} attempts" >&2
+        exit 1
+    fi
+    echo "  Waiting for Redis... (${RETRY_COUNT}/${MAX_RETRIES})"
+    sleep 2
+done
+
+echo "[2/5] ✓ Redis is ready"
 
 # ============================================================================
 # STEP 3: Check if WordPress is already installed
@@ -176,6 +190,20 @@ else
         --user_pass="${WP_USER_PASSWORD}" \
         --allow-root
     echo "  ✓ User '${WP_USER}' created"
+    
+    # ------------------------------------------------------------------
+    # Configure Redis Cache
+    # ------------------------------------------------------------------
+    echo "  Configuring Redis cache..."
+    
+    wp config set WP_REDIS_HOST "redis" --allow-root
+    wp config set WP_REDIS_PORT "6379" --raw --allow-root
+    wp config set WP_CACHE "true" --raw --allow-root
+    
+    wp plugin install redis-cache --activate --allow-root
+    wp redis enable --allow-root
+    
+    echo "  ✓ Redis cache configured"
     
     echo "[4/5] ✓ WordPress installation complete"
 fi

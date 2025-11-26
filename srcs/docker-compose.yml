@@ -82,6 +82,25 @@ services:
     restart: unless-stopped
 
   # ==========================================================================
+  # Redis Service (Bonus)
+  # ==========================================================================
+  redis:
+    container_name: redis
+    build:
+      context: ./requirements/bonus/redis
+      dockerfile: Dockerfile
+    image: redis:1.0
+    networks:
+      - inception
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ==========================================================================
   # Static Site Service (Bonus)
   # ==========================================================================
   static-site:
@@ -147,6 +166,8 @@ services:
     # This replaces the need for wait loops in init scripts
     depends_on:
       mariadb:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
     # Health check for WordPress (PHP-FPM)

@@ -10,8 +10,10 @@ RUN apt-get update && \
         php8.2-mbstring \
         php8.2-xml \
         php8.2-zip \
+        php8.2-redis \
         wget \
-        mariadb-client && \
+        mariadb-client \
+        redis-tools && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     wget -q \
