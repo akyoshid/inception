@@ -54,4 +54,12 @@ echo "========================================="
 # Clear password from environment
 unset FTP_PASSWORD
 
+# Create log file and redirect to stdout
+touch /var/log/vsftpd.log
+tail -f /var/log/vsftpd.log &
+
+# Create secure_chroot_dir
+# An empty directory required for security purposes
+mkdir -p /var/run/vsftpd/empty
+
 exec vsftpd /etc/vsftpd.conf
