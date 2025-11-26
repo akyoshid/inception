@@ -9,6 +9,7 @@
 # - secrets/db_password.txt          : Password for the WordPress DB user
 # - secrets/wp_admin_password.txt    : WordPress admin password
 # - secrets/wp_user_password.txt     : WordPress regular user password
+# - secrets/ftp_password.txt         : FTP user password
 #
 # Usage:
 #   1. Make this script executable
@@ -151,7 +152,20 @@ echo -e "  Password: ${WP_USER_PASSWORD}"
 echo ""
 
 # ----------------------------------------------------------------------------
-# Step 5: Completion
+# Step 5: Generate FTP Secrets
+# ----------------------------------------------------------------------------
+echo -e "${BLUE}[5/6] Generating FTP secrets...${RESET}"
+
+# FTP user password
+FTP_PASSWORD=$(generate_password)
+echo -n "${FTP_PASSWORD}" > "${SECRETS_DIR}/ftp_password.txt"
+chmod 600 "${SECRETS_DIR}/ftp_password.txt"
+echo -e "${GREEN}✓ Created: ftp_password.txt${RESET}"
+echo -e "  Password: ${FTP_PASSWORD}"
+echo ""
+
+# ----------------------------------------------------------------------------
+# Step 6: Completion
 # ----------------------------------------------------------------------------
 echo ""
 echo -e "${GREEN}=========================================${RESET}"
@@ -169,6 +183,7 @@ echo -e "   - DB Root: ${DB_ROOT_PASSWORD}"
 echo -e "   - DB User: ${DB_PASSWORD}"
 echo -e "   - WP Admin: ${WP_ADMIN_PASSWORD}"
 echo -e "   - WP User: ${WP_USER_PASSWORD}"
+echo -e "   - FTP User: ${FTP_PASSWORD}"
 echo ""
 echo -e "${YELLOW}2. These files are ignored by Git (.gitignore)${RESET}"
 echo -e "   Make sure secrets/ is in your .gitignore"

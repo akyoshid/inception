@@ -221,6 +221,33 @@ services:
 
     restart: unless-stopped
 
+# ==========================================================================
+  # FTP Server Service (Bonus)
+  # ==========================================================================
+  ftp:
+    container_name: ftp
+    build:
+      context: ./requirements/bonus/ftp
+      dockerfile: Dockerfile
+    image: ftp:1.0
+    environment:
+      FTP_USER: ${FTP_USER}
+    secrets:
+      - ftp_password
+    ports:
+      - "21:21"
+      - "21100-21110:21100-21110"
+    volumes:
+      - type: bind
+        source: ${WP_DATA_DIR}
+        target: /var/www/html
+    networks:
+      - inception
+    depends_on:
+      wordpress:
+        condition: service_healthy
+    restart: unless-stopped
+
 # ============================================================================
 # NETWORKS
 # ============================================================================
@@ -246,3 +273,6 @@ secrets:
   
   wp_user_password:
     file: ../secrets/wp_user_password.txt
+  
+  ftp_password:
+    file: ../secrets/ftp_password.txt
