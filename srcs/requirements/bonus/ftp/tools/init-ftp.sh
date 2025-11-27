@@ -54,9 +54,9 @@ echo "========================================="
 # Clear password from environment
 unset FTP_PASSWORD
 
-# Create log file and redirect to stdout
+# Create log file
 touch /var/log/vsftpd.log
-tail -f /var/log/vsftpd.log &
+chmod 666 /var/log/vsftpd.log
 
 # Create secure_chroot_dir
 # An empty directory required for security purposes
